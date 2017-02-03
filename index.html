@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Diagrams</title>
+    <script src="webfont.js"></script>
+    <script src="snap.svg-min.js"></script>
+    <script src="underscore-min.js"></script>
+    <script src="sequence-diagram-min.js"></script>
+    <link href="sequence-diagram.css" rel="stylesheet" />
+  </head>
+  <body>
+    <script>
+      var options = {theme: 'simple'};
+
+      function generateDiagram() {
+        var source = document.getElementById("diagram_source");
+        document.getElementById("diagram").innerHTML = "";
+        var d = Diagram.parse(source.value);
+        d.drawSVG('diagram', options);
+
+        var svg = document.getElementById("diagram").childNodes[0];
+        svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        var width = parseInt(svg.width.baseVal.value);
+        var height = parseInt(svg.height.baseVal.value);
+
+        var myCanvas = document.getElementById("canvas");
+        var ctxt = myCanvas.getContext("2d");
+
+        var img = new Image();
+        img.addEventListener('load', function() {
+          ctxt.drawImage(this, 0, 0);
+        });
+        img.src = "data:image/svg+xml," + svg.outerHTML;
+
+        myCanvas.setAttribute("width", width);
+        myCanvas.setAttribute("height", height);
+
+        document.getElementById("download_link").addEventListener("click", function() {
+          this.href = myCanvas.toDataURL();
+          this.download = "diagram.png";
+        }, false);
+      }
+    </script>
+    <textarea cols="100" rows="16" id="diagram_source" >You -> "this page": text description of sequence diagram
+Note over "this page": generates SVG and PNG files
+"this page" -> You: here you go
+Note over You: (press submit twice\non initial load)
+    </textarea>
+    <input type="submit" value="submit" onclick="return generateDiagram();" />
+    <div id="diagram"></div>
+    <a id="download_link" href="#">Download</a>
+    <canvas id="canvas" width=800 height=600></canvas>
+  </body>
+</html>
